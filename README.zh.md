@@ -81,7 +81,7 @@ Draft a bilingual outreach email to a potential supervisor
 Help me prepare a professor meeting or PhD interview PPT
 ```
 
-注意：Codex 主机会维护自己的  `codex/memory.md` 状态文件，并支持 `zh`（中文）, `en`（英文）, 和 `bilingual` （双语）三种输出模式。
+注意：Codex 主机会维护自己的 `codex/memory.md` 状态文件，并支持 `zh`（中文）、`en`（英文）和 `bilingual`（双语）三种输出模式。
 
 ## 仓库目录结构
 
