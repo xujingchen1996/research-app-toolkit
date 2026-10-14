@@ -10,6 +10,6 @@
 - [x] 合并 DSH bundle，新增预安装 CLI 与文档。
 - [x] 语法、格式、17 项单元/集成、DSH 实际技能加载及无 DSH npm tarball 安装验证；56 文件，约 57 KB。
 - [x] GitHub main 已推送代码提交 ea4d5ec。
-- [ ] npm 0.3.0 发布：当前等待账号本人完成 npm 浏览器二次验证。
-- [ ] 发布后 registry 回读与线上 tarball 无 DSH 安装验收。
-- [ ] 更新维护契约、归档任务。
+- [x] npm 0.3.0 发布完成，latest 已回读为 0.3.0。
+- [x] 官方 registry 校验值一致，线上 0.3.0 下载与无 DSH 的 CLI 预安装验收通过。
+- [x] 更新维护契约、归档任务。
