@@ -1,7 +1,7 @@
 {
   "name": "@xujingchen1996/research-app-toolkit",
-  "version": "0.2.3-3",
-  "description": "Research application toolkit for Claude Code and Codex with a unified installer CLI",
+  "version": "0.3.0",
+  "description": "科研申请工具包：Claude Code、Codex 与 DSH 九个申请技能，DSH 四页工作台及统一安装器。",
   "license": "MIT",
   "type": "module",
   "homepage": "https://github.com/xujingchen1996/research-app-toolkit",
@@ -19,7 +19,6 @@
   "files": [
     ".claude-plugin",
     ".codex-plugin",
-    ".local.md",
     "LICENSE",
     "README.md",
     "agents",
@@ -29,10 +28,18 @@
     "commands",
     "hooks",
     "lib",
-    "skills"
+    "skills",
+    "README.zh.md",
+    "dsh/lib",
+    "dsh/skills",
+    "dsh/templates",
+    "dsh/references",
+    "dsh/cordis.patch.yml"
   ],
   "scripts": {
-    "test": "node --test"
+    "check": "node scripts/check.mjs",
+    "test": "node --test test/*.test.js dsh/tests/*.test.mjs",
+    "test:dsh": "node scripts/test-dsh.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -49,6 +56,42 @@
     "professor-match",
     "interview-prep",
     "presentation",
-    "ppt"
-  ]
+    "ppt",
+    "deepseek",
+    "dsh",
+    "agent-preset"
+  ],
+  "exports": {
+    ".": "./dsh/lib/index.mjs",
+    "./client": "./dsh/lib/client.js",
+    "./package.json": "./package.json",
+    "./installer": "./lib/installer.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./dsh/cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-session"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.3.0"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "yaml": "^2.9.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

@@ -9,25 +9,29 @@ import {
   detectHosts,
   installClaudeHost,
   installCodexHost,
+  installDshHost,
   parseArgs,
 } from "../lib/installer.js";
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function printHelp() {
-  console.log(`Research Application Toolkit installer
+  console.log(`科研申请工具包安装器
 
-Usage:
+用法：
   ratk install
   ratk install --claude
   ratk install --codex
+  ratk install --dsh
   ratk install --all
 
-Behavior:
-  - Without flags, install to detected hosts on this machine.
-  - --claude installs only for Claude Code.
-  - --codex installs only for Codex.
-  - --all installs to every detected host and skips hosts that are not installed.
+行为：
+  - 无参数时安装到当前机器检测到的主机。
+  - --claude 仅安装 Claude Code 插件。
+  - --codex 仅安装 Codex 插件。
+  - --dsh 无须 DSH 已安装，先准备预设与 UI bundle 文件。
+  - --all 为已检测到的 Claude/Codex 安装，同时预安装 DSH bundle。
+  - DSH 启用：在“插件 → 添加插件”中添加输出的本地目录并启用。
 `);
 }
 
@@ -38,7 +42,7 @@ async function readPackageVersion() {
 
 function resolveTargets(options, detected) {
   if (options.all) {
-    return ["claude", "codex"];
+    return ["claude", "codex", "dsh"];
   }
 
   const explicit = [];
@@ -47,6 +51,10 @@ function resolveTargets(options, detected) {
   }
   if (options.codex) {
     explicit.push("codex");
+  }
+
+  if (options.dsh) {
+    explicit.push("dsh");
   }
 
   if (explicit.length > 0) {
@@ -72,10 +80,10 @@ async function main() {
 
   const detected = detectHosts();
   const targets = resolveTargets(options, detected);
-  const explicitSingleTarget = (options.claude || options.codex) && !options.all;
+  const explicitSingleTarget = (options.claude || options.codex || options.dsh) && !options.all;
 
   if (targets.length === 0) {
-    throw new Error("No supported host was detected. Install Claude Code or Codex first, or rerun with an explicit host after the client is installed.");
+    throw new Error("No supported host was detected. Install Claude Code or Codex first, or use --dsh to prepare the DSH bundle before installing DSH.");
   }
 
   const version = await readPackageVersion();
@@ -83,7 +91,7 @@ async function main() {
   const skipped = [];
 
   for (const target of targets) {
-    if (!detected[target]) {
+    if (!detected[target] && target !== "dsh") {
       if (explicitSingleTarget) {
         throw new Error(`Requested host is not installed: ${target}`);
       }
@@ -93,6 +101,11 @@ async function main() {
 
     if (target === "claude") {
       results.push(await installClaudeHost({ sourceDir: packageRoot, version }));
+      continue;
+    }
+
+    if (target === "dsh") {
+      results.push(await installDshHost({ sourceDir: packageRoot, version, ...(process.env.DSH_HOME ? { dshHomeDir: process.env.DSH_HOME } : {}) }));
       continue;
     }
 
@@ -108,6 +121,9 @@ async function main() {
   console.log("Installed Research Application Toolkit:");
   for (const result of results) {
     console.log(`- ${result.host}: ${result.pluginDir}`);
+    if (result.activationRequired) {
+      console.log("  DSH 文件已预安装；在 DSH 插件管理器添加此目录并启用后，选择 RA 科研申请模式。");
+    }
   }
 
   if (skipped.length > 0) {

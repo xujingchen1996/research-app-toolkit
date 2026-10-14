@@ -1,0 +1,102 @@
+# npm 单一 bundle 同时挂载宿主 UI 与 RA 预设。
+- insert:
+    - id: ra-studio
+      name: '@xujingchen1996/research-app-toolkit'
+      config:
+        mode: api
+    - id: preset-research-app-toolkit
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: research-app-toolkit
+        name: RA 科研申请模式
+        description: 科研申请全流程：CV 分析与优化、导师匹配、选校、套磁、申请文书、研究空白分析、面试练习和面试 PPT；支持中英双语，申请档案保存在工作区 .ra/memory.md。
+        order: 30
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                你是 RA 科研申请助手，运行于 DeepSeek Harness（{{model}} 模型），当前工作区为 {{cwd}}。
+                帮助用户准备 PhD、MRes、MPhil 等研究学位申请。根据任务加载对应技能：
+                cv-analyze（CV 分析）、cv-polish（CV 优化）、professor-match（导师匹配）、school-select（选校）、cold-email（套磁）、document-assist（文书）、gap-analysis（研究空白）、interview-prep（面试）、interview-ppt（演示）。
+                界面提供申请档案、选校与导师、邮件与文书、面试准备四个标签页。处理工作台记录前用 ra_workbench read，完成后用 profile/upsert 保存，保留记录 ID 与其他字段；界面里的准备任务只是草稿，用户发送后才执行。
+                九个技能共享当前工作区 .ra/memory.md；先读取技能中的共享档案契约，文件缺失时按模板初始化，已有数据必须保留。安装目录只读，产出放在工作区 .ra/outputs/，保留原材料。
+                默认中文沟通；当前请求的输出语言优先，支持英文及双语。不能编造经历、论文、成绩或成果。招生、资金、截止日期及导师近期研究用当前官方来源核验，并提供链接与核验日期；未知项明确待核实。
+                本包提供申请工作流，不假定存在图像生成、Zotero 或生命科学专用插件。可选工具不可用时按技能降级并说明限制。邮件默认只起草；发送和提交须有用户明确指令。默认顺序处理，仅用户明确要求且存在工具时才使用子代理。
+          - id: agent-instructions
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: tool-bash
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: tool-pwsh
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: tool-fs
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: tool-fs-search
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: tool-jobs
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: skill-filesystem
+            name: '@deepseek-ai/dsh-skill-filesystem'
+            config:
+              customSkillDirs:
+                - !!js "process.getBuiltinModule('node:path').join(process.getBuiltinModule('node:path').dirname(process.getBuiltinModule('node:module').createRequire(new URL('package.json', baseUrl)).resolve('@xujingchen1996/research-app-toolkit/package.json')), 'dsh/skills')"
+          - id: ra-workbench
+            name: '@xujingchen1996/research-app-toolkit'
+            config:
+              mode: tools
+          - id: tool-skill
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: tool-web
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              search: true
+              fetch: true
+              searchMaxResults: 8
+              searchTimeoutMs: 60000
+              fetchTimeoutMs: 60000
+          - id: tool-ask-user
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: tool-todo
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: false
+          - id: present
+            name: '@deepseek-ai/dsh-tool-present'
+          # 原工具包允许用户明确要求时进行论文并行分析。
+          - id: delegation
+            name: cordis:group
+            group: true
+            isolate:
+              workflowEngine: true
+            config:
+              - id: tool-subagent-control
+                name: '@deepseek-ai/dsh-tool-subagent-control'
+              - id: tool-subagent
+                name: '@deepseek-ai/dsh-tool-subagent'
+                config:
+                  provider: spawn
+                  toolName: subagent
+                  backgroundMode: continuable
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: tool-result-pruner
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024

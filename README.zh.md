@@ -1,12 +1,12 @@
 # 科研申请工具包
 
 [![Stars](https://img.shields.io/github/stars/xujingchen1996/research-app-toolkit?style=social)](https://github.com/xujingchen1996/research-app-toolkit/stargazers)
-[![版本](https://img.shields.io/badge/version-0.2.3--3-blue)](https://github.com/xujingchen1996/research-app-toolkit/releases)
+[![版本](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/xujingchen1996/research-app-toolkit/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-purple)](https://claude.ai/code)
 [![Codex](https://img.shields.io/badge/Codex-Plugin-teal)](https://openai.com)
 
-Research Application Toolkit 是一个统一的代码仓库，旨在为 Claude Code 和 Codex 这两个 AI 平台提供特定的主机集成插件。
+Research Application Toolkit 是一个统一的代码仓库，旨在为 Claude Code、Codex 与 DeepSeek Harness 三个平台提供特定的主机集成插件。
 本工具包覆盖了学术科研申请的全流程，主要包含以下功能：
 
 - 简历分析：CV 分析与个人档案提取
@@ -119,3 +119,42 @@ npm test
 ## License
 
 MIT
+
+## DeepSeek Harness（DSH）
+
+同一个 npm 包提供 RA 科研申请预设、九个技能，以及申请档案、选校与导师、邮件与文书、面试准备四个 UI 标签页。DSH 当前验证版本为 0.2.0-rc.2。
+
+### 尚未安装 DSH：先准备文件
+
+```bash
+npm install -g @xujingchen1996/research-app-toolkit
+ratk install --dsh
+```
+
+也可直接运行：
+
+```bash
+npx @xujingchen1996/research-app-toolkit install --dsh
+```
+
+此步骤不需要 DSH，也不会自动安装 DSH 或修改 profile。它将 bundle 放到 `~/.dsh/bundles/research-app-toolkit/`；若设置 `DSH_HOME`，则使用 `$DSH_HOME/bundles/research-app-toolkit/`。预安装成功表示文件已就绪，使用预设和 UI 仍需要安装 DSH。
+
+### 已安装 DSH：启用预设与 UI
+
+1. 打开 DSH 的“插件 → 添加插件”。
+2. 输入安装器输出的完整本地目录，或者包名 `@xujingchen1996/research-app-toolkit`。
+3. 安装后点击“立即启用”，在新会话选择“RA 科研申请模式”。
+4. Web 与 Desktop 的 profile 独立，分别添加并启用。旧会话若持有旧工具版本，重启宿主或新建 RA 会话。
+
+如果已手工安装旧的 `@local/dsh-preset-research-app-toolkit` 与 `dsh-ra-studio`，先在插件管理器停用这两个 bundle，再启用新包，避免重复预设/接口。此操作不删除工作区档案。
+
+### 使用与数据
+
+- 九个技能：`/cv-analyze`、`/cv-polish`、`/professor-match`、`/school-select`、`/cold-email`、`/document-assist`、`/gap-analysis`、`/interview-prep`、`/interview-ppt`。
+- 申请档案：当前会话工作区 `.ra/memory.md`；工作台记录：`.ra/workbench.json`。模板不会覆盖已有个人材料。
+- UI 支持编辑、保存和准备任务；“准备任务”只填写对话草稿，用户发送后模型才处理。模型与 UI 通过 `ra_workbench` 共用数据。
+- Zotero、图像生成、生命科学专用技能和 PPTX 导出工具属于可选能力，包不会自动安装它们。
+
+普通安装与测试不需要 DSH；本包没有运行时依赖，DSH 仅声明为可选 peer dependency。
+
+发布前检查：`npm run check`、`npm test`。已安装 DSH 时再运行 `npm run test:dsh`，该检查可用 `DSH_NODE_MODULES` 指定 DSH 的 node_modules 目录。
