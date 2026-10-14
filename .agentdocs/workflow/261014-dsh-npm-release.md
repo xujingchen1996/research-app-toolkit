@@ -9,5 +9,7 @@
 - [x] 核对账号、原 npm 包与仓库安装器。
 - [x] 合并 DSH bundle，新增预安装 CLI 与文档。
 - [x] 语法、格式、17 项单元/集成、DSH 实际技能加载及无 DSH npm tarball 安装验证；56 文件，约 57 KB。
-- [ ] GitHub 推送、npm 发布与线上回读验收。
+- [x] GitHub main 已推送代码提交 ea4d5ec。
+- [ ] npm 0.3.0 发布：当前等待账号本人完成 npm 浏览器二次验证。
+- [ ] 发布后 registry 回读与线上 tarball 无 DSH 安装验收。
 - [ ] 更新维护契约、归档任务。

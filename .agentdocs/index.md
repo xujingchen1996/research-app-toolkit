@@ -1,5 +1,9 @@
 # 代理文档索引
 
+## 架构
+
+`architecture/dsh-platform.md` - 三平台 npm 包、预安装/启用边界与发布验收；修改 DSH、安装器或发布配置时必读。
+
 ## 当前任务
 
 `workflow/261014-dsh-npm-release.md` - DSH 整合、便携性、打包与发布阶段。
